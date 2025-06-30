@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {useForm, type SubmitHandler} from "react-hook-form"
 import {z} from "zod"
 import { useInfoStore } from "./UseInfoStore";
+import { useState } from "react";
 
 
 
@@ -37,7 +38,8 @@ type FormFields = z.infer<typeof schema>;
 
 
 function App() {
-const {register , handleSubmit, watch , formState:{errors , isSubmitting}} = useForm<FormFields>({resolver:zodResolver(schema)})
+  const [isSubmitted, setIsSubmitted] = useState(false);
+const {register ,reset, handleSubmit, watch  , formState:{errors , isSubmitting}} = useForm<FormFields>({resolver:zodResolver(schema)})
 const {updateName , updateCardNumber , updateMonth , updateYears , updateCvc} = useInfoStore()
 const onSubmit: SubmitHandler<FormFields> = (data) =>{
   // console.log(data);
@@ -47,10 +49,17 @@ const onSubmit: SubmitHandler<FormFields> = (data) =>{
   updateYears(data.years)
   updateCvc(data.cvc)
   console.log({name : data.name ,cart :  data.cardNumber , month :  data.month , year: data.years , cvc : data.cvc});
+  setIsSubmitted(true)
+  reset()
   
-  return data
   
 }
+
+console.log(isSubmitted);
+
+
+
+
 
 const watchName = watch("name");
 const watchCardNumber = watch("cardNumber");
@@ -62,7 +71,7 @@ const watchCvc = watch("cvc");
   return (
     <div className="flex justify-center">
       <div className="absolute left-0 top-0 bg-[url('/images/bg-main-desktop.png')] w-[35%] h-[100vh] bg-no-repeat bg-cover z-0 "></div>
-      <div className=" w-[80%] h-screen relative z-10 flex">
+      <div className=" w-[80%] h-screen relative  flex">
         <div className=" w-[50%] h-screen flex flex-col items-start justify-center gap-8 ">
           <div className="relative  inline-block  rounded-[.6rem] overflow-hidden">
             <div className="absolute px-8 w-full h-full top-0 left-0 flex flex-col ">
@@ -92,8 +101,70 @@ const watchCvc = watch("cvc");
           </div>
 </div>
         </div>
-        <div className="w-[50%] h-screen  flex  items-center justify-center ">
-          <form className="flex flex-col gap-6 items-start  w-[80%] " onSubmit={handleSubmit(onSubmit)}>
+        <div className="  w-[50%] h-screen  flex flex-col items-center justify-center ">
+          {/* <form className="flex flex-col gap-6 items-start  w-[80%] hidden " onSubmit={handleSubmit(onSubmit)}>
+            <label className="flex flex-col  w-full gap-2 ">
+              CARDHOLDER NAME
+              <input
+                type="text"
+                maxLength={16}
+                {...register("name")}
+                placeholder="e.g. Jane Appleseed"
+className={`border-[.1rem] border-[#dedde3] h-11 p-4 rounded-[.4rem] 
+focus:border-[#9ca3af] outline-none 
+${errors.name ? "border-red-500 focus:border-red-500" : ""}`}
+              />
+              {errors.name && <span className="text-[.8rem] text-red-500">{errors.name.message}</span>}
+            </label>
+            <label className="flex flex-col w-full gap-2">
+              CARD NUMBER
+              <input
+                type="text"
+                {...register("cardNumber")}
+                maxLength={16}
+                placeholder="e.g. 1234 5678 9123 0000"
+                className={`border-[.1rem] border-[#dedde3] h-11 p-4 rounded-[.4rem] 
+focus:border-[#9ca3af] outline-none 
+${errors.cardNumber ? "border-red-500 focus:border-red-500" : ""}`}
+              />
+              {errors.cardNumber && <span className="text-[.8rem] text-red-500">{errors.cardNumber.message}</span>}
+            </label>
+            <div className="flex items-center  w-full gap-5  ">
+              <label className="flex flex-col  w-[100%] gap-2  ">
+                <p>EXP. DATE (MM/YY)</p>
+                <div className="flex gap-4">
+                  <input
+                    type="number"
+                    {...register("month"  , {valueAsNumber:true})}
+                    maxLength={2}
+                    placeholder="MM"
+                    className={`border-[.1rem] border-[#dedde3] appearance-none h-11 p-4 rounded-[.4rem] w-[50%] focus:border-[#9ca3af] outline-none ${errors.month ? "border-red-500 focus:border-red-500" : ""}`}
+                  />
+                  <input type="number"  maxLength={2} placeholder="YY" 
+                  {...register("years"  , {valueAsNumber:true})}
+                     className={`border-[.1rem] border-[#dedde3] appearance-none h-11 p-4 rounded-[.4rem] w-[50%] focus:border-[#9ca3af] outline-none ${errors.years ? "border-red-500 focus:border-red-500" : ""} `}
+                  />
+                </div>
+              {(errors.month || errors.years) && (
+  <span className="text-[.8rem] text-red-500">
+    {errors.month?.message || errors.years?.message}
+  </span>
+)}
+              </label>
+              <label className="flex flex-col w-[100%] gap-2 ">
+                CVC
+                <input type="number" {...register("cvc"  , {valueAsNumber:true})}   maxLength={3} placeholder="e.g. 123" className={`border-[.1rem] appearance-none border-[#dedde3] h-11 p-4 rounded-[.4rem] w-[100%] focus:border-[#9ca3af] outline-none ${errors.cvc ? "border-red-500 focus:border-red-500" : ""} `}  />
+                              {errors.cvc && <span className="text-[.8rem]  text-red-500">{errors.cvc.message}</span>}
+
+              </label>
+            </div>
+ 
+            <button disabled={isSubmitting} className="bg-[#231336] text-white w-full flex items-center justify-center h-11 p-4 rounded-[.4rem]">Confirm</button>
+          </form> */}
+          
+{isSubmitted === false && (
+
+<form className="flex flex-col gap-6 items-start  w-[80%]  " onSubmit={handleSubmit(onSubmit)}>
             <label className="flex flex-col  w-full gap-2 ">
               CARDHOLDER NAME
               <input
@@ -152,6 +223,21 @@ ${errors.cardNumber ? "border-red-500 focus:border-red-500" : ""}`}
  
             <button disabled={isSubmitting} className="bg-[#231336] text-white w-full flex items-center justify-center h-11 p-4 rounded-[.4rem]">Confirm</button>
           </form>
+)}
+
+
+
+          {isSubmitted === true &&   ( 
+
+
+            <div className="w-[50%] h-screen  flex flex-col  items-center justify-center ">
+            <img src="/images/icon-complete.svg" className=""  />
+            <span className="pt-6 pb-2 text-2xl text=[231336] font-bold tracking-widest  ">THANK YOU!</span>
+            <p className="text-[#dedde3] pb-8">We've added your card details</p>
+            <button onClick={()=> setIsSubmitted(false)}  className="bg-[#231336] text-white w-full flex items-center justify-center h-11 p-4 rounded-[.4rem]">Confirm</button>
+
+          </div>
+  )}
         </div>
       </div>
     </div>
